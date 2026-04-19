@@ -24,8 +24,15 @@ import numpy as np
 load_dotenv()
 
 # --- APPLICATION SETUP ---
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret')
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, "templates"),
+    static_folder=os.path.join(BASE_DIR, "static")
+)app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret')
 
 # Configure Database (PostgreSQL for Render, SQLite for Local)
 db_uri = os.getenv('DATABASE_URL', 'sqlite:///database.db')
