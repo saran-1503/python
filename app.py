@@ -32,7 +32,8 @@ app = Flask(
     __name__,
     template_folder=os.path.join(BASE_DIR, "templates"),
     static_folder=os.path.join(BASE_DIR, "static")
-)app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret')
+)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret')
 
 # Configure Database (PostgreSQL for Render, SQLite for Local)
 db_uri = os.getenv('DATABASE_URL', 'sqlite:///database.db')
