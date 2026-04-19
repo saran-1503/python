@@ -1,8 +1,13 @@
 import os
 import re
 import time
+import logging
 from datetime import datetime
 from dotenv import load_dotenv
+
+# Configure Logging (Render captures stdout)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Third-party Flask extensions
 from flask import Flask, render_template, request, redirect, url_for, flash, current_app
@@ -61,7 +66,21 @@ login_manager.login_view = 'login'
 
 # Create tables if they don't exist
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+        logger.info("Database tables verified/created successfully.")
+    except Exception as e:
+        logger.error(f"DATABASE ERROR ON STARTUP: {str(e)}")
+        # We don't exit here so the /health route can still work for debugging
+
+@app.route('/health')
+def health():
+    """Diagnostic route to verify the app is running without database dependency."""
+    return {
+        "status": "alive",
+        "database": str(app.config['SQLALCHEMY_DATABASE_URI'].split('@')[-1]), # Show host only for safety
+        "time": datetime.utcnow().isoformat()
+    }
 
 @login_manager.user_loader
 def load_user(user_id):
