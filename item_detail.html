@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 900px; margin: 0 auto; padding: 0; overflow: hidden;">
+    <div style="display: flex; flex-wrap: wrap;">
+        <!-- Left Column: Image -->
+        <div style="flex: 1; min-width: 300px; background: #1e293b; display: flex; align-items: center; justify-content: center; position: relative;">
+            <div style="position: absolute; top: 1rem; left: 1rem; z-index: 10;">
+                <span style="font-size: 0.9rem; background: var(--glass-bg); backdrop-filter: blur(8px); padding: 0.5rem 1rem; border-radius: 99px; border: 1px solid var(--glass-border); color: {% if item.type == 'lost' %}var(--text-color){% else %}var(--text-color){% endif %}; font-weight: 600;">
+                    <i class="fa-solid {% if item.type == 'lost' %}fa-magnifying-glass{% else %}fa-hand-holding-heart{% endif %}"></i> {{ item.type|capitalize }} Item
+                </span>
+            </div>
+            {% if item.image_filename %}
+                <img src="{{ url_for('static', filename='uploads/' + item.image_filename) }}" alt="{{ item.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+                <i class="fa-solid fa-image" style="font-size: 5rem; color: rgba(255,255,255,0.1);"></i>
+            {% endif %}
+        </div>
+
+        <!-- Right Column: Details -->
+        <div style="flex: 1; min-width: 300px; padding: 2rem;">
+            <span style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: {% if item.type == 'lost' %}var(--primary-color){% else %}var(--secondary-color){% endif %}; font-weight: 600;">{{ item.category }}</span>
+            <h1 style="margin-bottom: 1.5rem; margin-top: 0.5rem;">{{ item.title }}</h1>
+            
+            <div style="margin-bottom: 2rem;">
+                <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fa-solid fa-location-dot" style="color: var(--text-muted);"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Location</div>
+                        <div style="color: var(--text-muted);">{{ item.location }}</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fa-regular fa-calendar" style="color: var(--text-muted);"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Date {{ item.type|capitalize }}</div>
+                        <div style="color: var(--text-muted);">{{ item.date.strftime('%B %d, %Y') }}</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fa-solid fa-user" style="color: var(--text-muted);"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">Reported By</div>
+                        <div style="color: var(--text-muted);">{{ item.author.name }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 0.5rem;">Description</h3>
+                <p style="color: var(--text-muted); line-height: 1.6; white-space: pre-wrap;">{{ item.description }}</p>
+            </div>
+
+            {% if item.status == 'matched' and item.matched_with_id %}
+                {% if current_user.id == item.user_id or current_user.id == item.matched_item.user_id %}
+                    <div class="glass-card" style="padding: 1.5rem; border: 1px solid #f59e0b; background: rgba(245, 158, 11, 0.05); margin-bottom: 2rem;">
+                        <h3 style="color: #f59e0b; margin-bottom: 0.5rem;"><i class="fa-solid fa-fire-flame-curved"></i> Match Found!</h3>
+                        <p style="font-size: 0.9rem; margin-bottom: 1rem;">You can coordinate with the other student directly:</p>
+                        <div style="font-weight: 700; font-size: 1.1rem;">{{ item.matched_item.author.name if current_user.id == item.user_id else item.author.name }}</div>
+                        <div style="color: var(--primary-color); font-weight: 600;">
+                            <a href="mailto:{{ item.matched_item.author.email if current_user.id == item.user_id else item.author.email }}" style="color: inherit;">
+                                {{ item.matched_item.author.email if current_user.id == item.user_id else item.author.email }}
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            {% if current_user.is_authenticated %}
+                {% if item.user_id != current_user.id %}
+                    <button class="btn-primary" style="width: 100%; justify-content: center; padding: 1rem; font-size: 1.1rem; {% if item.type == 'found' %}background: var(--secondary-color);{% endif %}" onclick="alert('Contact details will appear on your dashboard as soon as a match is found.')">
+                        <i class="fa-regular fa-envelope"></i> Contact {{ item.author.name }}
+                    </button>
+                {% else %}
+                    <a href="{{ url_for('dashboard') }}" class="btn-secondary" style="width: 100%; justify-content: center; padding: 1rem; font-size: 1.1rem;">
+                        <i class="fa-solid fa-gauge-high"></i> Back to Dashboard
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn-primary" style="width: 100%; justify-content: center; padding: 1rem; font-size: 1.1rem;">
+                    <i class="fa-solid fa-lock"></i> Login to Contact
+                </a>
+            {% endif %}
+
+            
+            {% if current_user.id == item.user_id %}
+            <div style="margin-top: 1rem; text-align: center;">
+                <a href="{{ url_for('delete_item', id=item.id) }}" class="btn-danger" style="display: inline-block;" onclick="return confirm('Permanently delete this report?');">Delete Item</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

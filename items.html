@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h2>
+        {% if list_type == 'lost' %}
+            Lost Items
+        {% elif list_type == 'found' %}
+            Found Items
+        {% else %}
+            All Items
+        {% endif %}
+    </h2>
+</div>
+
+<form class="filter-bar" method="GET" action="{{ url_for('items') }}">
+    {% if list_type %}
+        <input type="hidden" name="type" value="{{ list_type }}">
+    {% endif %}
+    <div class="form-group">
+        <input type="text" class="form-control" name="search" placeholder="Search items..." value="{{ request.args.get('search', '') }}">
+    </div>
+    <div class="form-group">
+        <select class="form-select" name="category">
+            <option value="">All Categories</option>
+            <option value="Electronics" {% if request.args.get('category') == 'Electronics' %}selected{% endif %}>Electronics</option>
+            <option value="Books & Documents" {% if request.args.get('category') == 'Books & Documents' %}selected{% endif %}>Books & Documents</option>
+            <option value="Accessories & Wearables" {% if request.args.get('category') == 'Accessories & Wearables' %}selected{% endif %}>Accessories & Wearables</option>
+            <option value="Keys & Wallets" {% if request.args.get('category') == 'Keys & Wallets' %}selected{% endif %}>Keys & Wallets</option>
+            <option value="Clothing" {% if request.args.get('category') == 'Clothing' %}selected{% endif %}>Clothing</option>
+            <option value="Stationery" {% if request.args.get('category') == 'Stationery' %}selected{% endif %}>Stationery</option>
+            <option value="Other" {% if request.args.get('category') == 'Other' %}selected{% endif %}>Other</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <select class="form-select" name="location">
+            <option value="">All Locations</option>
+            <option value="Administrative and AI & DS Block" {% if request.args.get('location') == 'Administrative and AI & DS Block' %}selected{% endif %}>Administrative Block</option>
+            <option value="Central Library" {% if request.args.get('location') == 'Central Library' %}selected{% endif %}>Central Library</option>
+            <option value="Food Court" {% if request.args.get('location') == 'Food Court' %}selected{% endif %}>Food Court</option>
+            <option value="Girls Hostel (Ganga, Yamuna, Kaveri)" {% if request.args.get('location') == 'Girls Hostel (Ganga, Yamuna, Kaveri)' %}selected{% endif %}>Girls Hostel</option>
+            <option value="Boys Hostel" {% if request.args.get('location') == 'Boys Hostel' %}selected{% endif %}>Boys Hostel</option>
+        </select>
+    </div>
+    <div class="form-group" style="flex: 0 0 auto;">
+        <button type="submit" class="btn-primary" style="height: 100%; border-radius: 0.5rem;">Filter</button>
+    </div>
+</form>
+
+{% if not items %}
+    <div class="glass-card" style="text-align: center; padding: 4rem 2rem;">
+        <i class="fa-solid fa-box-open" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+        <h3>No items found</h3>
+        <p style="color: var(--text-muted);">Try adjusting your filters or search query.</p>
+    </div>
+{% else %}
+    <div class="grid">
+        {% for item in items %}
+            <div class="item-card glass-card" style="padding: 0; {% if item.type == 'found' %}border-color: rgba(139, 92, 246, 0.3);{% endif %}">
+                {% if item.image_filename %}
+                    <img src="{{ url_for('static', filename='uploads/' + item.image_filename) }}" alt="{{ item.title }}" class="item-img">
+                {% else %}
+                    <div class="item-img">
+                        <i class="fa-solid fa-image" style="opacity: 0.2;"></i>
+                    </div>
+                {% endif %}
+                <div class="item-content">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <span class="item-category" style="{% if item.type == 'found' %}color: var(--secondary-color);{% endif %}">{{ item.category }}</span>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span style="font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 0.2rem 0.5rem; border-radius: 99px;">{{ item.type|capitalize }}</span>
+                            {% if item.status == 'matched' %}
+                                <span style="font-size: 0.8rem; background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 0.2rem 0.5rem; border-radius: 99px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                                    <i class="fa-solid fa-circle-check"></i> Matched
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <h3 class="item-title"><a href="{{ url_for('item_detail', id=item.id) }}">{{ item.title }}</a></h3>
+                    <div class="item-meta">
+                        <span><i class="fa-solid fa-location-dot"></i> {{ item.location }}</span>
+                    </div>
+                    <div class="item-meta">
+                        <span><i class="fa-regular fa-calendar"></i> {{ item.date.strftime('%Y-%m-%d') }}</span>
+                    </div>
+                    <div class="item-footer">
+                        <a href="{{ url_for('item_detail', id=item.id) }}" class="btn-primary" style="width: 100%; justify-content: center; font-size: 0.9rem; {% if item.type == 'found' %}background: var(--secondary-color);{% endif %}">View Details</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Map Section Header -->
+<h3 style="margin-top: 4rem; margin-bottom: 1rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">Campus Map Reference</h3>
+<p style="color: var(--text-muted); margin-bottom: 1rem;">Use this map to locate blocks and facilities.</p>
+<div class="campus-map-container" style="background: white; padding: 10px;">
+    <!-- We will let the user know to place their map image here, or use a placeholder -->
+    <img src="{{ url_for('static', filename='campus_map.png') }}" alt="Campus Map" onerror="this.onerror=null; this.src='https://via.placeholder.com/1200x800.png?text=Please+Upload+campus_map.png+to+static+folder';">
+</div>
+{% endblock %}

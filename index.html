@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero glass-card" style="margin-bottom: 3rem;">
+    <h1>Find What You Lost. Return What You Found.</h1>
+    <p>The central hub for lost and found items across the campus. Join our community to help each other out.</p>
+    <div class="hero-actions">
+        <a href="{{ url_for('report_item', item_type='found') }}" class="btn-primary" style="font-size: 1.1rem; padding: 0.8rem 1.5rem;">
+            <i class="fa-solid fa-hand-holding-heart"></i> I Found Something
+        </a>
+        <a href="{{ url_for('report_item', item_type='lost') }}" class="btn-secondary" style="font-size: 1.1rem; padding: 0.8rem 1.5rem;">
+            <i class="fa-solid fa-magnifying-glass"></i> I Lost Something
+        </a>
+    </div>
+</section>
+
+<div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+    <!-- Recent Lost Items -->
+    <div style="flex: 1; min-width: 300px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>Recently Lost</h2>
+            <a href="{{ url_for('items', type='lost') }}" style="color: var(--primary-color);">View All</a>
+        </div>
+        {% if recent_lost %}
+            <div class="grid" style="grid-template-columns: 1fr; margin-top: 0;">
+                {% for item in recent_lost %}
+                    <div class="item-card glass-card" style="padding: 1rem;">
+                        <span class="item-category">{{ item.category }}</span>
+                        <h3 class="item-title" style="margin-bottom: 0.5rem;"><a href="{{ url_for('item_detail', id=item.id) }}">{{ item.title }}</a></h3>
+                        <div class="item-meta">
+                            <span><i class="fa-solid fa-location-dot"></i> {{ item.location }}</span>
+                            <span><i class="fa-regular fa-calendar"></i> {{ item.date.strftime('%Y-%m-%d') }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="glass-card" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                No recent lost items.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Found Items -->
+    <div style="flex: 1; min-width: 300px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>Recently Found</h2>
+            <a href="{{ url_for('items', type='found') }}" style="color: var(--secondary-color);">View All</a>
+        </div>
+        {% if recent_found %}
+            <div class="grid" style="grid-template-columns: 1fr; margin-top: 0;">
+                {% for item in recent_found %}
+                    <div class="item-card glass-card" style="padding: 1rem; border-color: rgba(139, 92, 246, 0.3);">
+                        <span class="item-category" style="color: var(--secondary-color);">{{ item.category }}</span>
+                        <h3 class="item-title" style="margin-bottom: 0.5rem;"><a href="{{ url_for('item_detail', id=item.id) }}">{{ item.title }}</a></h3>
+                        <div class="item-meta">
+                            <span><i class="fa-solid fa-location-dot"></i> {{ item.location }}</span>
+                            <span><i class="fa-regular fa-calendar"></i> {{ item.date.strftime('%Y-%m-%d') }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="glass-card" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                No recent found items.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

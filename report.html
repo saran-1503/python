@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+    <h2 style="margin-bottom: 2rem; color: {% if item_type == 'lost' %}var(--primary-color){% else %}var(--secondary-color){% endif %};">
+        <i class="fa-solid {% if item_type == 'lost' %}fa-magnifying-glass{% else %}fa-hand-holding-heart{% endif %}"></i>
+        Report a {{ item_type|capitalize }} Item
+    </h2>
+
+    <form method="POST" action="{{ url_for('report_item', item_type=item_type) }}" enctype="multipart/form-data">
+        <div class="form-group">
+            <label class="form-label" for="title">Item Name</label>
+            <input type="text" class="form-control" id="title" name="title" required placeholder="e.g. Blue iPhone 13, Physics Textbook">
+        </div>
+
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label" for="category">Category</label>
+                <select class="form-select" id="category" name="category" required>
+                    <option value="" disabled selected>Select a category</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Books & Documents">Books & Documents</option>
+                    <option value="Accessories & Wearables">Accessories & Wearables</option>
+                    <option value="Keys & Wallets">Keys & Wallets</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Stationery">Stationery</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="flex: 1;">
+                <label class="form-label" for="date">Date {{ item_type|capitalize }}</label>
+                <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="location">Location {{ item_type|capitalize }} (Select from Map)</label>
+            <select class="form-select" id="location" name="location" required>
+                <option value="" disabled selected>Where was it {{ item_type }}?</option>
+                <optgroup label="Academic & Admin Blocks">
+                    <option value="Administrative and AI & DS Block">Administrative and AI & DS Block</option>
+                    <option value="Imperial Hall, T & P, CoE & Exam Cell">Imperial Hall, T & P, CoE & Exam Cell</option>
+                    <option value="R & D">R & D</option>
+                    <option value="Mechanical Block">Mechanical Block</option>
+                    <option value="Civil & EEE Block">Civil & EEE Block</option>
+                    <option value="KPRCAS 1 & 2">KPRCAS 1 & 2</option>
+                    <option value="Engineering Workshop">Engineering Workshop</option>
+                    <option value="Central Library">Central Library</option>
+                </optgroup>
+                <optgroup label="Food & Leisure">
+                    <option value="Food Court">Food Court</option>
+                    <option value="Cafeteria Dining">Cafeteria Dining</option>
+                    <option value="Open Theatre / Kalaiarangam">Open Theatre / Kalaiarangam</option>
+                    <option value="Garden Cafe">Garden Cafe</option>
+                </optgroup>
+                <optgroup label="Hostel & Facilities">
+                    <option value="Girls Hostel (Ganga, Yamuna, Kaveri)">Girls Hostel (Ganga, Yamuna, Kaveri)</option>
+                    <option value="Boys Hostel (Bharathi, Cheran, Cholan, Pandian, Pallavan)">Boys Hostel</option>
+                    <option value="Bike/Car Parking">Bike/Car Parking</option>
+                    <option value="Security Gate">Security Gate</option>
+                </optgroup>
+                <optgroup label="Sports">
+                    <option value="Sports Facility - Courts">Sports Facility - Courts</option>
+                    <option value="Ground Area / Track">Ground Area / Track</option>
+                    <option value="Multi Purpose Hall & Gym">Multi Purpose Hall & Gym</option>
+                </optgroup>
+                <option value="Other / Not Sure">Other / Not Sure</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="description">Detailed Description</label>
+            <textarea class="form-control" id="description" name="description" required placeholder="Provide details like brand, color, unique marks, etc."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="image">Upload Image (Optional)</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/png, image/jpeg, image/gif">
+            <div id="image-preview" style="margin-top: 1rem; max-width: 300px; display: none; border-radius: 0.5rem; overflow: hidden; border: 1px solid var(--glass-border);">
+                <img src="" alt="Preview" style="width: 100%; height: auto; display: block;">
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Submit {{ item_type|capitalize }} Item</button>
+    </form>
+</div>
+{% endblock %}

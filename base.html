@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Found It</title>
+    <!-- Use Inter font for a premium look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <header class="glass-header">
+            <nav class="navbar">
+                <a href="{{ url_for('index') }}" class="logo">
+                    <i class="fa-solid fa-gem"></i> Campus L&F
+                </a>
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('items', type='lost') }}">Lost Items</a></li>
+                    <li><a href="{{ url_for('items', type='found') }}">Found Items</a></li>
+                    {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('dashboard') }}" class="nav-icon"><i class="fa-solid fa-gauge-high"></i> Dashboard</a></li>
+                        <li><a href="{{ url_for('report_item', item_type='lost') }}" class="btn-secondary">Report Lost</a></li>
+                        <li><a href="{{ url_for('report_item', item_type='found') }}" class="btn-primary">Report Found</a></li>
+                        <li><a href="{{ url_for('logout') }}" class="nav-icon" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></a></li>
+                    {% else %}
+
+                        <li><a href="{{ url_for('login') }}" class="btn-primary">Login / Register</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="flash-container">
+                {% for message in messages %}
+                  <div class="flash-message glass-card">
+                      <i class="fa-solid fa-circle-info"></i> {{ message }}
+                  </div>
+                {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+        
+        <footer>
+            <p>&copy; 2026 College Lost & Found System. All rights reserved.</p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

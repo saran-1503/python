@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="margin-bottom: 0.5rem;">Welcome, {{ current_user.name }}!</h1>
+        <p style="color: var(--text-muted);">Manage your reported items and view potential matches.</p>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+        <a href="{{ url_for('report_item', item_type='lost') }}" class="btn-secondary">Report Lost</a>
+        <a href="{{ url_for('report_item', item_type='found') }}" class="btn-primary">Report Found</a>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 3rem;">
+    <div class="glass-card" style="text-align: center; padding: 1.5rem;">
+        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Total Reports</div>
+        <div style="font-size: 2rem; font-weight: 700;">{{ stats.total }}</div>
+    </div>
+    <div class="glass-card" style="text-align: center; padding: 1.5rem; border-left: 4px solid var(--primary-color);">
+        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Lost Items</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">{{ stats.lost }}</div>
+    </div>
+    <div class="glass-card" style="text-align: center; padding: 1.5rem; border-left: 4px solid var(--secondary-color);">
+        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Found Items</div>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--secondary-color);">{{ stats.found }}</div>
+    </div>
+    <div class="glass-card" style="text-align: center; padding: 1.5rem; border-left: 4px solid #f59e0b;">
+        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Matches Found</div>
+        <div style="font-size: 2rem; font-weight: 700; color: #f59e0b;">{{ stats.matched }}</div>
+    </div>
+    <div class="glass-card" style="text-align: center; padding: 1.5rem; border-left: 4px solid #10b981;">
+        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Resolved</div>
+        <div style="font-size: 2rem; font-weight: 700; color: #10b981;">{{ stats.resolved }}</div>
+    </div>
+
+</div>
+
+<h2 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-list-check"></i> Your Submissions</h2>
+
+{% if not items %}
+    <div class="glass-card" style="text-align: center; padding: 4rem 2rem;">
+        <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: rgba(255,255,255,0.1); margin-bottom: 1rem;"></i>
+        <h3>No items reported yet</h3>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Help your fellow students by reporting items you find or asking for help with lost ones.</p>
+        <a href="{{ url_for('report_item', item_type='found') }}" class="btn-primary">Report an Item</a>
+    </div>
+{% else %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;" class="glass-card">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--glass-border);">
+                    <th style="padding: 1.2rem; color: var(--text-muted);">Item</th>
+                    <th style="padding: 1.2rem; color: var(--text-muted);">Type</th>
+                    <th style="padding: 1.2rem; color: var(--text-muted);">Date</th>
+                    <th style="padding: 1.2rem; color: var(--text-muted);">Status</th>
+                    <th style="padding: 1.2rem; color: var(--text-muted);">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;">
+                    <td style="padding: 1.2rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            {% if item.image_filename %}
+                                <img src="{{ url_for('static', filename='uploads/' + item.image_filename) }}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
+                            {% else %}
+                                <div style="width: 40px; height: 40px; border-radius: 4px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;">
+                                    <i class="fa-solid fa-image" style="font-size: 0.8rem; opacity: 0.3;"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <div style="font-weight: 500;"><a href="{{ url_for('item_detail', id=item.id) }}">{{ item.title }}</a></div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ item.location }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="padding: 1.2rem;">
+                        <span style="font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 99px; background: {% if item.type == 'lost' %}rgba(59, 130, 246, 0.1){% else %}rgba(139, 92, 246, 0.1){% endif %}; color: {% if item.type == 'lost' %}var(--primary-color){% else %}var(--secondary-color){% endif %}; border: 1px solid currentColor;">
+                            {{ item.type|upper }}
+                        </span>
+                    </td>
+                    <td style="padding: 1.2rem; font-size: 0.9rem;">{{ item.created_at.strftime('%b %d, %Y') }}</td>
+                    <td style="padding: 1.2rem;">
+                        {% if item.status == 'open' %}
+                            <span style="color: #60a5fa;"><i class="fa-solid fa-circle-dot" style="font-size: 0.6rem;"></i> Active</span>
+                        {% elif item.status == 'matched' %}
+                            <span style="color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-fire-flame-curved" style="font-size: 0.6rem;"></i> Match Found!</span>
+                        {% else %}
+                            <span style="color: #10b981;"><i class="fa-solid fa-circle-check" style="font-size: 0.6rem;"></i> Resolved</span>
+                        {% endif %}
+                    </td>
+
+                    <td style="padding: 1.2rem;">
+                        <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+                            {% if item.status == 'matched' and item.matched_with_id %}
+                                <div class="glass-card" style="padding: 0.8rem; border: 1px solid #f59e0b; background: rgba(245, 158, 11, 0.05);">
+                                    <div style="font-size: 0.75rem; color: #f59e0b; font-weight: 700; margin-bottom: 0.3rem;">CONTACT OTHER STUDENT:</div>
+                                    <div style="font-size: 0.85rem; font-weight: 600;">{{ item.matched_item.author.name }}</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-muted);"><a href="mailto:{{ item.matched_item.author.email }}" style="color: var(--primary-color);">{{ item.matched_item.author.email }}</a></div>
+                                </div>
+                            {% endif %}
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                {% if item.status != 'resolved' %}
+                                    <a href="{{ url_for('resolve_item', id=item.id) }}" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background: #10b981; border: none;" onclick="return confirm('Mark this item as resolved?');">Mark Resolved</a>
+                                {% endif %}
+                                <a href="{{ url_for('delete_item', id=item.id) }}" class="btn-danger" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="return confirm('Permanently delete this report?');">Delete</a>
+                            </div>
+                        </div>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+{% endblock %}
