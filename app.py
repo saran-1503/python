@@ -33,6 +33,10 @@ app = Flask(
     template_folder=os.path.join(BASE_DIR, "templates"),
     static_folder=os.path.join(BASE_DIR, "static")
 )
+app.config['DEBUG'] = True
+
+import logging
+logging.basicConfig(level=logging.DEBUG)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret')
 
 # Configure Database (PostgreSQL for Render, SQLite for Local)
